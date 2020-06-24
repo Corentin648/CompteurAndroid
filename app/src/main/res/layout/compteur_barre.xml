@@ -16,7 +16,8 @@
         android:id="@+id/boutonPlus"
         android:layout_width="30dp"
         android:layout_height="25dp"
-        android:background="@drawable/baseline_add_black_18dp"></Button>
+        android:background="@drawable/baseline_add_black_18dp"
+        android:focusable="false"></Button>
 
     <TextView
         android:id="@+id/compteur"
@@ -28,7 +29,8 @@
         android:id="@+id/boutonMoins"
         android:layout_width="30dp"
         android:layout_height="25dp"
-        android:background="@drawable/baseline_remove_black_18dp"></Button>
+        android:background="@drawable/baseline_remove_black_18dp"
+        android:focusable="false"></Button>
 
 
 

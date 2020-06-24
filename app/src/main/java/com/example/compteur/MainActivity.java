@@ -1,18 +1,17 @@
 package com.example.compteur;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.os.Build;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     DatabaseReference test = database.getReference("compteur-3c180");
-    DatabaseReference nomsCompteur = database.getReference("nom");
-    DatabaseReference valeursCompteur = database.getReference("valeur");
 
     static final String LISTE_COMPTEUR = "test";
 
@@ -52,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         //database.getReference().child("compteur-3c180").push().setValue(new Compteur(0,"bananes"));
 
 
-        database.getReference().child("compteur-3c180").addListenerForSingleValueEvent(new ValueEventListener() {
+        /* On parcourt la liste des compteurs présents dans la bdd */
+        database.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
@@ -67,12 +65,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        /* On met en place la ToolBar */
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //List<Compteur> laListe = this.getListData();
         this.listView = (ListView) findViewById(R.id.listView);
+
+
         this.customListAdapter = new CustomListAdapter(this, laListe);
 
 /*        try {
@@ -86,6 +86,39 @@ public class MainActivity extends AppCompatActivity {
         }*/
 
         this.listView.setAdapter(this.customListAdapter);
+
+        this.listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            Compteur compteurASupprimer;
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                // Poser la question de si on veut supprimer l'item
+
+                compteurASupprimer = (Compteur) adapterView.getAdapter().getItem(position);
+
+                AlertDialog.Builder myPopup = new AlertDialog.Builder(MainActivity.this);
+                myPopup.setTitle("Yo la zone");
+                myPopup.setMessage("Voulez-vous supprimer ce compteur ?");
+                myPopup.setPositiveButton("OUI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        customListAdapter.removeData(compteurASupprimer);
+                        listView.setAdapter(customListAdapter);
+                        Toast.makeText(getApplicationContext(), "Compteur supprimé", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                myPopup.setNegativeButton("NON", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(getApplicationContext(), "Annulation de suppression", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                myPopup.show();
+                return false;
+            }
+        });
     }
 
     @Override
@@ -122,15 +155,23 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Ajouter des actions aux items du menu de la ToolBar
+     * @param item
+     * @return booleen
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        /* Ajouter des actions aux items du menu de la toolBar */
         switch (item.getItemId()) {
+
+            /* Cas du bouton Supprimer */
             case R.id.menu_activity_main_params:
                 Toast.makeText(this, "Il n'y a rien à paramétrer ici, passez votre chemin...", Toast.LENGTH_LONG).show();
                 this.customListAdapter.addData(new Compteur(0, "applis"));
                 this.listView.setAdapter(this.customListAdapter);
                 return true;
+
+            /* Cas du bouton Ajouter */
             case R.id.menu_activity_main_search:
                 final CustomPopup customPopup = new CustomPopup(MainActivity.this);
                 customPopup.setTitle("Ajouter un nouveau compteur");
@@ -141,10 +182,13 @@ public class MainActivity extends AppCompatActivity {
                         int nouveauCompteur = Integer.parseInt(customPopup.getValeurCompteur().getText().toString());
                         customListAdapter.addData(new Compteur(nouveauCompteur, nouveauNom));
 
-                        /* Voir si l'on peut éviter d'ajouter un nouveau noeud */
-                        database.getReference().child("compteur-3c180").push().setValue(new Compteur(nouveauCompteur, nouveauNom));
+                        /* Ajout du compteur à la base de données */
+                        database.getReference().push().setValue(new Compteur(nouveauCompteur, nouveauNom));
 
+                        /* Mise à jour de la ListView */
                         listView.setAdapter(customListAdapter);
+
+                        /* Affichage d'un Toast et fermeture du popup */
                         Toast.makeText(getApplicationContext(), "Nouveau compteur ajouté", Toast.LENGTH_SHORT).show();
                         customPopup.dismiss();
                     }

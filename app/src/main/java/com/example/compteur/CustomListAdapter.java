@@ -32,6 +32,10 @@ public class CustomListAdapter extends BaseAdapter {
         this.listData.add(nouveauCompteur);
     }
 
+    public void removeData(Compteur aSupprimer){
+        this.listData.remove(aSupprimer);
+    }
+
     @Override
     public int getCount() {
         return listData.size();
