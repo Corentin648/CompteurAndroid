@@ -1,5 +1,6 @@
 package com.example.compteur;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -15,8 +16,11 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference myRef = database.getReference("message");
+
+    DatabaseReference test = database.getReference("compteur-3c180");
+    DatabaseReference nomsCompteur = database.getReference("nom");
+    DatabaseReference valeursCompteur = database.getReference("valeur");
 
     static final String LISTE_COMPTEUR = "test";
 
@@ -40,17 +47,35 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        myRef.setValue("Mange tes os");
+        final List<Compteur> laListe = new ArrayList<Compteur>();
+
+        //database.getReference().child("compteur-3c180").push().setValue(new Compteur(0,"bananes"));
+
+
+        database.getReference().child("compteur-3c180").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Compteur comp = snapshot.getValue(Compteur.class);
+                    laListe.add(comp);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //List<Compteur> laListe = this.getListData();
-        List<Compteur> laListe = new ArrayList<Compteur>();
         this.listView = (ListView) findViewById(R.id.listView);
         this.customListAdapter = new CustomListAdapter(this, laListe);
 
-        try {
+/*        try {
             super.onRestoreInstanceState(savedInstanceState);
             Parcelable[] parcelables = savedInstanceState.getParcelableArray(LISTE_COMPTEUR);
             for(int j = 0; j < parcelables.length; j++){
@@ -58,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (NullPointerException e){
 
-        }
+        }*/
 
         this.listView.setAdapter(this.customListAdapter);
     }
@@ -115,6 +140,10 @@ public class MainActivity extends AppCompatActivity {
                         String nouveauNom = customPopup.getValeurNom().getText().toString();
                         int nouveauCompteur = Integer.parseInt(customPopup.getValeurCompteur().getText().toString());
                         customListAdapter.addData(new Compteur(nouveauCompteur, nouveauNom));
+
+                        /* Voir si l'on peut éviter d'ajouter un nouveau noeud */
+                        database.getReference().child("compteur-3c180").push().setValue(new Compteur(nouveauCompteur, nouveauNom));
+
                         listView.setAdapter(customListAdapter);
                         Toast.makeText(getApplicationContext(), "Nouveau compteur ajouté", Toast.LENGTH_SHORT).show();
                         customPopup.dismiss();

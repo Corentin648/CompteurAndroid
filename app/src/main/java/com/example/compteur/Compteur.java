@@ -8,6 +8,10 @@ public class Compteur implements Parcelable {
     private int compteur;
     private String nom;
 
+    public Compteur(){
+
+    }
+
     public Compteur(int compteur, String nom) {
         this.compteur = compteur;
         this.nom = nom;
