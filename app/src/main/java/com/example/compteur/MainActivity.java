@@ -87,14 +87,14 @@ public class MainActivity extends AppCompatActivity {
 
         this.listView.setAdapter(this.customListAdapter);
 
+
+        /* Supprimer un compteur par un clic long */
         this.listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
             Compteur compteurASupprimer;
 
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
-
-                // Poser la question de si on veut supprimer l'item
 
                 compteurASupprimer = (Compteur) adapterView.getAdapter().getItem(position);
 
@@ -106,6 +106,23 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         customListAdapter.removeData(compteurASupprimer);
                         listView.setAdapter(customListAdapter);
+
+                        database.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                                    Compteur comp = snapshot.getValue(Compteur.class);
+                                    if (compteurASupprimer.getNom().equals(comp.getNom()) && compteurASupprimer.getCompteur() == comp.getCompteur()){
+                                        snapshot.getRef().removeValue();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
                         Toast.makeText(getApplicationContext(), "Compteur supprimé", Toast.LENGTH_SHORT).show();
                     }
                 });
