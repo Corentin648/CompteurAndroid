@@ -29,8 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-    DatabaseReference test = database.getReference("compteur-3c180");
-
     static final String LISTE_COMPTEUR = "test";
 
     CustomListAdapter customListAdapter;

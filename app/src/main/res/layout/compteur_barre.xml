@@ -4,36 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="10dp">
 
     <TextView
         android:id="@+id/nomCompteur"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:layout_width="138dp"
+        android:layout_height="35dp"
+        android:text="TextView"
+        android:textSize="22dp" />
 
     <Button
         android:id="@+id/boutonPlus"
-        android:layout_width="30dp"
-        android:layout_height="25dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:background="@drawable/baseline_add_black_18dp"
         android:focusable="false"></Button>
 
     <TextView
         android:id="@+id/compteur"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Compteur" />
+        android:layout_height="35dp"
+        android:paddingHorizontal="10dp"
+        android:text="Compteur"
+        android:textSize="22dp" />
 
     <Button
         android:id="@+id/boutonMoins"
-        android:layout_width="30dp"
-        android:layout_height="25dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:background="@drawable/baseline_remove_black_18dp"
         android:focusable="false"></Button>
-
-
-
 
 
 </LinearLayout>
