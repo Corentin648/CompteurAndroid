@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
         this.laListe = new ArrayList<Compteur>();
 
+        this.listView = (ListView) findViewById(R.id.listView);
+
         //database.getReference().child("compteur-3c180").push().setValue(new Compteur(0,"bananes"));
 
 
@@ -54,8 +56,15 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Compteur comp = snapshot.getValue(Compteur.class);
                     laListe.add(comp);
-                    System.out.println(laListe.size());
                 }
+
+                //List<Compteur> autreListe = this.getListData()
+
+
+                customListAdapter = new CustomListAdapter(MainActivity.this, laListe, MainActivity.this);
+
+
+                listView.setAdapter(customListAdapter);
             }
 
             @Override
@@ -69,14 +78,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //List<Compteur> autreListe = this.getListData();
-        this.listView = (ListView) findViewById(R.id.listView);
-
-
-        this.customListAdapter = new CustomListAdapter(this, this.laListe, this);
-
-
-        this.listView.setAdapter(this.customListAdapter);
 
 
         /* Supprimer un compteur par un clic long */
