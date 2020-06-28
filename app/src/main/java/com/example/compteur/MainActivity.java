@@ -27,12 +27,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
 
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-
-    static final String LISTE_COMPTEUR = "test";
-
+    public FirebaseDatabase database;
     CustomListAdapter customListAdapter;
     ListView listView;
+    List<Compteur> laListe;
 
 
     @Override
@@ -40,9 +38,11 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
+        this.database = FirebaseDatabase.getInstance();
+
         setContentView(R.layout.activity_main);
 
-        final List<Compteur> laListe = new ArrayList<Compteur>();
+        this.laListe = new ArrayList<Compteur>();
 
         //database.getReference().child("compteur-3c180").push().setValue(new Compteur(0,"bananes"));
 
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Compteur comp = snapshot.getValue(Compteur.class);
                     laListe.add(comp);
+                    System.out.println(laListe.size());
                 }
             }
 
@@ -63,25 +64,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         /* On met en place la ToolBar */
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //List<Compteur> laListe = this.getListData();
+        //List<Compteur> autreListe = this.getListData();
         this.listView = (ListView) findViewById(R.id.listView);
 
 
-        this.customListAdapter = new CustomListAdapter(this, laListe);
+        this.customListAdapter = new CustomListAdapter(this, this.laListe, this);
 
-/*        try {
-            super.onRestoreInstanceState(savedInstanceState);
-            Parcelable[] parcelables = savedInstanceState.getParcelableArray(LISTE_COMPTEUR);
-            for(int j = 0; j < parcelables.length; j++){
-                this.customListAdapter.addData((Compteur) parcelables[j]);
-            }
-        } catch (NullPointerException e){
-
-        }*/
 
         this.listView.setAdapter(this.customListAdapter);
 
@@ -136,32 +129,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-
-        System.out.println("le test du q");
-        Parcelable[] parcelables = new Parcelable[30];
-        int i = 0;
-        for (Compteur compteur : this.customListAdapter.getListData()){
-            parcelables[i] = compteur;
-            i++;
-        }
-        savedInstanceState.putParcelableArray(LISTE_COMPTEUR, parcelables);
-        super.onSaveInstanceState(savedInstanceState);
-    }
-
-    /*
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        Parcelable[] parcelables = savedInstanceState.getParcelableArray(LISTE_COMPTEUR);
-
-        for(int j = 0; j < parcelables.length; j++){
-            this.customListAdapter.addData((Compteur) parcelables[j]);
-        }
-    }
-     */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

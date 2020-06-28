@@ -10,18 +10,29 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.List;
 
 public class CustomListAdapter extends BaseAdapter {
 
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+
     private List<Compteur> listData;
     private LayoutInflater layoutInflater;
     private Context context;
+    private MainActivity activity;
 
-    public CustomListAdapter(Context aContext,  List<Compteur> listData) {
+    public CustomListAdapter(Context aContext,  List<Compteur> listData, MainActivity activity) {
         this.context = aContext;
         this.listData = listData;
-        layoutInflater = LayoutInflater.from(aContext);
+        this.layoutInflater = LayoutInflater.from(aContext);
+        this.activity = activity;
     }
 
     public List<Compteur> getListData() {
@@ -74,6 +85,23 @@ public class CustomListAdapter extends BaseAdapter {
             public void onClick(View view) {
                 compt.setCompteur(compt.getCompteur()+1);
                 holder.compteur.setText(String.valueOf(compt.getCompteur()));
+                activity.database.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                            Compteur compteur = snapshot.getValue(Compteur.class);
+                            if (compt.getNom().equals(compteur.getNom()) && compt.getCompteur()-1 == compteur.getCompteur()){
+                                snapshot.getRef().removeValue();
+                                activity.database.getReference().push().setValue(new Compteur(compteur.getCompteur()+1, compteur.getNom()));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
 
